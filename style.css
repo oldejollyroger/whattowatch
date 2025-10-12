@@ -88,3 +88,75 @@
   /* NEW: Add the background color here */
   background-color: var(--color-card-bg);
 }
+/* --- ADD THESE STYLES TO THE END OF style.css --- */
+
+.advanced-filters-container {
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* For animated opening/closing of the dropdown */
+.filters-content {
+  overflow: hidden;
+  transition: all 0.4s ease-out;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  /* On medium screens and up, use 3 columns */
+  .filter-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-list {
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 0.5rem; /* For scrollbar spacing */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.filter-label input {
+  margin-right: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-accent);
+}
+
+.filter-label.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.platform-search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: 0.5rem;
+  background-color: rgba(0,0,0,0.2);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-card-border);
+}
