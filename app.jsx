@@ -185,16 +185,23 @@ const App = () => {
             <header className="mb-8 pt-12">
                 <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">{t.title}</h1>
                 <p className="text-lg text-gray-400 mt-2">{t.subtitle}</p>
-             <div className="flex flex-wrap justify-center gap-2 mb-8">
-    {quickGenres.map(genre => (
-        <button
-            key={genre.id}
-            onClick={() => setGenreFilter(prev => prev === genre.id ? '' : genre.id)}
-            className={`quick-filter-btn px-4 py-1.5 text-sm rounded-full ${genreFilter === genre.id ? 'quick-filter-btn-active' : ''}`}
-        >
-            {genre.name}
-        </button>
-    ))}
+             <div className="w-full max-w-xl mx-auto mb-8 text-left">
+    {/* NEW: Quick Filters Title */}
+    <h3 className="px-1 text-sm font-semibold text-gray-400 mb-2">Quick Filters</h3>
+    
+    {/* NEW: Horizontal Scrolling Container */}
+    <div className="horizontal-scroll-container">
+        {quickGenres.map(genre => (
+            <button
+                key={genre.id}
+                onClick={() => setGenreFilter(prev => prev === genre.id ? '' : genre.id)}
+                // We add the '-active' class name directly here again for certainty
+                className={`quick-filter-btn px-4 py-1.5 text-sm rounded-full ${genreFilter === genre.id ? 'quick-filter-btn-active' : ''}`}
+            >
+                {genre.name}
+            </button>
+        ))}
+    </div>
 </div>
             </header>
 

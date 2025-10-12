@@ -41,3 +41,41 @@
 .country-list-item:last-child {
   border-bottom: none;
 }
+/* --- ADD OR REPLACE THESE STYLES AT THE END OF style.css --- */
+
+/* For the Movie/TV and Genre Buttons */
+.media-type-btn.media-type-btn-active,
+.quick-filter-btn.quick-filter-btn-active {
+  background-image: linear-gradient(to right, var(--color-accent-gradient-from), var(--color-accent-gradient-to));
+  color: white !important; /* !important ensures this overrides other text color styles */
+  border-color: transparent;
+  box-shadow: 0 4px 15px -5px rgba(168, 85, 247, 0.5);
+}
+
+.quick-filter-btn {
+  /* This ensures the buttons don't wrap and can scroll */
+  flex-shrink: 0;
+}
+
+/* For the Platform Logos */
+.platform-logo {
+  width: 40px !important;   /* Use !important to force the size */
+  height: 40px !important;  /* Overrides any conflicting Tailwind size classes */
+  border-radius: 0.5rem; /* 8px */
+  object-fit: cover;
+  background-color: rgba(255, 255, 255, 0.1); /* Adds a nice backdrop for logos with transparency */
+}
+
+/* For the horizontally scrolling genre container */
+.horizontal-scroll-container {
+  display: flex;
+  gap: 0.75rem; /* 12px */
+  overflow-x: auto;
+  padding-bottom: 1rem; /* So the shadow is not cut off */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scrollbar-width: none; /* Hide scrollbar on Firefox */
+}
+
+.horizontal-scroll-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar on Chrome/Safari */
+}
