@@ -1,4 +1,4 @@
-// app.jsx - A clean, stable, and working version
+// app.jsx - Version with New Features
 
 const App = () => {
     // Bring React hooks into scope
@@ -14,11 +14,14 @@ const App = () => {
     const [error, setError] = useState(null);
     const [availableRegions, setAvailableRegions] = useState([]);
     
+    // NEW STATE for theme and genre filters
+    const [theme, setTheme] = useState(() => localStorage.getItem('moviePicker_theme') || 'dark');
+    const [genreFilter, setGenreFilter] = useState(''); // Stores the ID of the selected genre
+
     const t = translations[language] || translations['en'];
 
     // --- API Fetcher ---
     const fetchApi = useCallback(async (path, params = {}) => {
-        // Safety check for the API key
         if (!TMDB_API_KEY || TMDB_API_KEY === 'YOUR_API_KEY_HERE') {
             throw new Error("API Key is missing or invalid in config.js");
         }
@@ -32,14 +35,26 @@ const App = () => {
     }, []);
     
     // --- Effects ---
-    // Save userRegion to localStorage whenever it changes
     useEffect(() => {
         if (userRegion) {
             localStorage.setItem('moviePicker_userRegion', userRegion);
         }
     }, [userRegion]);
 
-    // This useEffect runs only once to initialize the app
+    // NEW EFFECT for managing theme
+    useEffect(() => {
+        // This applies the theme class to the root <html> element
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+            document.documentElement.classList.remove('light-mode');
+        } else {
+            document.documentElement.classList.add('light-mode');
+            document.documentElement.classList.remove('dark-mode');
+        }
+        localStorage.setItem('moviePicker_theme', theme);
+    }, [theme]);
+    
+    // Initialize the app (fetch countries)
     useEffect(() => {
         fetchApi('configuration/countries')
             .then(data => {
@@ -54,32 +69,37 @@ const App = () => {
     }, [fetchApi]);
 
     // --- Event Handlers ---
+    // NEW HANDLER for changing country
+    const handleChangeCountry = () => {
+        localStorage.removeItem('moviePicker_userRegion');
+        setUserRegion(null); // Update state to immediately trigger re-render to the selection screen
+    };
+    
     const handleSurpriseMe = useCallback(async () => {
         setIsDiscovering(true);
         setError(null);
         setSelectedMedia(null);
         try {
-            // Find a random page of popular content
             const discoverParams = {
                 'vote_count.gte': 150,
                 'sort_by': 'popularity.desc',
                 'watch_region': userRegion,
                 'with_watch_monetization_types': 'flatrate',
+                // NEW: Add genre to the request if one is selected
+                'with_genres': genreFilter || undefined,
             };
+            
             const initialData = await fetchApi(`discover/${mediaType}`, discoverParams);
             const totalPages = Math.min(initialData.total_pages, 200);
             if (totalPages === 0) throw new Error(t.noResults);
             
             const randomPage = Math.floor(Math.random() * totalPages) + 1;
             
-            // Get results from that random page
             const pageData = await fetchApi(`discover/${mediaType}`, {...discoverParams, page: randomPage });
             const results = pageData.results;
             if (!results || results.length === 0) throw new Error(t.noResults);
             
             const randomResult = results[Math.floor(Math.random() * results.length)];
-            
-            // Get detailed provider info for the chosen media
             const details = await fetchApi(`${mediaType}/${randomResult.id}`, { append_to_response: 'watch/providers' });
             
             setSelectedMedia({
@@ -96,12 +116,16 @@ const App = () => {
         } finally {
             setIsDiscovering(false);
         }
-    }, [mediaType, userRegion, fetchApi, t]);
+    }, [mediaType, userRegion, fetchApi, t, genreFilter]); // Added genreFilter dependency
+
+    // --- Helper Data ---
+    // NEW: Data for genre filter buttons
+    const quickGenres = (mediaType === 'movie')
+        ? [ { id: '28', name: 'Action' }, { id: '35', name: 'Comedy' }, { id: '878', name: 'Sci-Fi' }, { id: '27', name: 'Horror' }, { id: '10749', name: 'Romance' } ]
+        : [ { id: '10759', name: 'Action' }, { id: '35', name: 'Comedy' }, { id: '99', name: 'Documentary' }, { id: '18', name: 'Drama' }, { id: '10765', name: 'Sci-Fi' } ];
 
     // --- Render Logic ---
-    if (appStatus === 'loading') {
-        return <div className="min-h-screen flex items-center justify-center"><div className="loader"></div></div>;
-    }
+    if (appStatus === 'loading') { return <div className="min-h-screen flex items-center justify-center"><div className="loader"></div></div>; }
     
     if (appStatus === 'error') {
         return (
@@ -133,9 +157,24 @@ const App = () => {
         );
     }
     
+    // Main App View
     return (
         <div className="container mx-auto max-w-2xl p-4 sm:p-6 text-center">
-            <header className="mb-8">
+            
+            {/* NEW: TOP RIGHT UTILITY BUTTONS (THEME & COUNTRY) */}
+            <div className="absolute top-4 right-4 flex items-center space-x-2">
+                <button onClick={handleChangeCountry} className="px-3 py-2 text-xs bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition">
+                    Change Country
+                </button>
+                <button onClick={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')} className="theme-toggle" title="Toggle Theme">
+                    {theme === 'dark' ? 
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path></svg> : 
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    }
+                </button>
+            </div>
+
+            <header className="mb-8 pt-12"> {/* Added pt-12 to make space for buttons */}
                 <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">{t.title}</h1>
                 <p className="text-lg text-gray-400 mt-2">{t.subtitle}</p>
                 <div className="mt-6 inline-flex p-1 rounded-full media-type-switcher">
@@ -143,6 +182,19 @@ const App = () => {
                     <button onClick={() => setMediaType('tv')} className={`px-5 py-2 text-sm rounded-full media-type-btn ${mediaType === 'tv' ? 'media-type-btn-active' : ''}`}>{t.tvShows}</button>
                 </div>
             </header>
+
+            {/* NEW: GENRE FILTER BUTTONS */}
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+                {quickGenres.map(genre => (
+                    <button
+                        key={genre.id}
+                        onClick={() => setGenreFilter(prev => prev === genre.id ? '' : genre.id)}
+                        className={`quick-filter-btn px-4 py-1.5 text-sm rounded-full ${genreFilter === genre.id ? 'quick-filter-btn-active' : ''}`}
+                    >
+                        {genre.name}
+                    </button>
+                ))}
+            </div>
 
             <button
                 onClick={handleSurpriseMe}
