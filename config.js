@@ -12,7 +12,13 @@ const TOP_COUNTRIES = [
     'AT', 'BE', 'CH', 'CL', 'CO', 'CZ', 'DK', 'FI', 'HK', 'HU', 'ID', 'IE', 'IL', 'MY', 'NZ', 'NO',
     'PE', 'PH', 'PL', 'PT', 'RO', 'RU', 'SA', 'SG', 'TH', 'TR', 'AE', 'ZA', 'TW', 'EG', 'GR', 'NG'
 ];
-
+// NEW: Accent Color Definitions
+const ACCENT_COLORS = [
+    { name: 'Cyberpunk', color: '#a855f7', text: '#d8b4fe', from: '#a855f7', to: '#ec4899' },
+    { name: 'Ocean', color: '#22d3ee', text: '#67e8f9', from: '#22d3ee', to: '#3b82f6' },
+    { name: 'Forest', color: '#4ade80', text: '#d0f2b2', from: '#22c55e', to: '#a3e635' },
+    { name: 'Sunset', color: '#f97316', text: '#fbbf24', from: '#fb923c', to: '#f59e0b' }
+];
 const translations = {
     en: {
         title: "Movie & TV Picker",
