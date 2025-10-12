@@ -1,10 +1,9 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>What To Watch</title>
+    <title>MoviePicker</title>
 
     <!-- PWA Settings -->
     <link rel="manifest" href="manifest.json">
@@ -16,15 +15,15 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- React & Babel Scripts (defer makes them load correctly) -->
+    <!-- React & Babel Scripts -->
     <script src="https://unpkg.com/react@17/umd/react.production.min.js" defer></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" defer></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js" defer></script>
 
-    <!-- Your App Scripts (in the correct order) -->
+    <!-- Your App Scripts (Order is CRITICAL) -->
     <script src="config.js" defer></script>
     <script type="text/babel" src="app.jsx" defer></script>
-
+    <script type="text/babel" src="main.js" defer></script>
 </head>
 <body class="antialiased bg-[#111827] text-gray-200">
     <div id="root"></div>

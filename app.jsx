@@ -186,6 +186,3 @@ const App = () => {
         </div>
     );
 };
-
-// This must be the very last line
-ReactDOM.render(<App />, document.getElementById('root'));

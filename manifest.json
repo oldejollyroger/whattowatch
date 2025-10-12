@@ -1,42 +1,28 @@
-<<<<<<< HEAD
 {
+  "name": "MoviePicker: Find What to Watch",
   "short_name": "What To Watch",
-  "name": "Movie & TV Picker",
-  "start_url": ".",
+  "description": "Discover movies and TV shows and find where to stream them with this surprise generator.",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#a855f7",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/icon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-512.png",
       "type": "image/png",
       "sizes": "512x512"
-    }
-  ]
-=======
-{
-  "short_name": "MoviePicker",
-  "name": "Movie & TV Picker",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#111827",
-  "theme_color": "#a855f7",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
     },
     {
-      "src": "icon-512.png",
+      "src": "/maskable-icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ]
->>>>>>> ef75e2b61c11c1e5d6638b04c5c67435c583f2bc
 }
