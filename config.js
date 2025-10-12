@@ -17,7 +17,13 @@ const ACCENT_COLORS = [
     { name: 'Cyberpunk', color: '#a855f7', text: '#d8b4fe', from: '#a855f7', to: '#ec4899' },
     { name: 'Ocean', color: '#22d3ee', text: '#67e8f9', from: '#22d3ee', to: '#3b82f6' },
     { name: 'Forest', color: '#4ade80', text: '#d0f2b2', from: '#22c55e', to: '#a3e635' },
-    { name: 'Sunset', color: '#f97316', text: '#fbbf24', from: '#fb923c', to: '#f59e0b' }
+    { name: 'Sunset', color: '#f97316', text: '#fbbf24', from: '#fb923c', to: '#f59e0b' },
+    { name: 'Cyberpunk', from: '#a855f7', to: '#ec4899', color: '#a855f7', text: '#d8b4fe' },
+    { name: 'Ocean',     from: '#22d3ee', to: '#3b82f6', color: '#22d3ee', text: '#67e8f9' },
+    { name: 'Forest',    from: '#4ade80', to: '#a3e635', color: '#4ade80', text: '#d0f2b2' },
+    { name: 'Sunset',    from: '#fb923c', to: '#f59e0b', color: '#f97316', text: '#fbbf24' },
+    { name: 'Crimson',   from: '#ef4444', to: '#f43f5e', color: '#ef4444', text: '#fca5a5' },
+    { name: 'Mint',      from: '#10b981', to: '#6ee7b7', color: '#10b981', text: '#a7f3d0' },
 ];
 const translations = {
     en: {
