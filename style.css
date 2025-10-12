@@ -214,3 +214,81 @@ body {
 .light-mode .search-input {
   color: #1f2937 !important; /* A dark slate gray color */
 }
+/* --- ADD THESE STYLES TO THE END OF style.css --- */
+
+/* --- Trailer & Actor Modals --- */
+.trailer-responsive {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+.trailer-responsive iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 9999px;
+    padding: 0.25rem;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+.modal-close-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.actor-thumbnail {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    background-color: var(--color-card-border);
+    transition: transform 0.2s ease-in-out;
+}
+.actor-card:hover .actor-thumbnail {
+    transform: scale(1.05);
+}
+.actor-name {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-top: 0.5rem;
+    line-height: 1.2;
+    transition: color 0.2s;
+}
+.actor-card:hover .actor-name {
+    color: var(--color-accent-text);
+}
+
+/* --- Buttons for Card --- */
+.card-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+.trailer-btn {
+    background-color: rgba(var(--color-accent-rgb), 0.15);
+    color: var(--color-accent-text);
+    border-color: rgba(var(--color-accent-rgb), 0.3);
+}
+.trailer-btn:hover {
+    background-color: rgba(var(--color-accent-rgb), 0.25);
+}
