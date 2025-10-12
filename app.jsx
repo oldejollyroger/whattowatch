@@ -249,9 +249,9 @@ const App = () => {
     if (appStatus === 'error') { return ( <div className="min-h-screen flex items-center justify-center p-4"> <div className="w-full max-w-md text-center bg-red-900/50 border border-red-700 p-6 rounded-lg"> <h1 className="text-2xl font-bold text-white mb-2">Application Error</h1> <p className="text-red-200">{error}</p> <p className="text-xs text-gray-400 mt-4">Please check your API key and internet connection.</p> </div> </div>); }
     if (appStatus === 'ready' && !userRegion) { return <CountrySelector countries={availableRegions} onSelect={(region) => setUserRegion(region)} t={t} />; }
     
-    return (
-        <div className="container mx-auto max-w-4xl p-4 sm:p-6 text-center">
-            <div className="absolute top-4 right-4"><SettingsMenu t={t} currentTheme={accent} onSelectTheme={setAccent} onCountryChange={handleChangeCountry} displayMode={displayMode} onDisplayModeChange={setDisplayMode} /></div>
+    
+return (
+    <div className={`container mx-auto max-w-4xl p-4 sm:p-6 text-center ${displayMode}`}>            <div className="absolute top-4 right-4"><SettingsMenu t={t} currentTheme={accent} onSelectTheme={setAccent} onCountryChange={handleChangeCountry} displayMode={displayMode} onDisplayModeChange={setDisplayMode} /></div>
             <header className="mb-4 pt-16"><h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-gradient-from)] to-[var(--color-accent-gradient-to)]">{t.title}</h1><p className="text-lg text-gray-400 mt-2">{t.subtitle}</p><div className="mt-6 inline-flex p-1 rounded-full media-type-switcher"><button onClick={() => setMediaType('movie')} className={`px-5 py-2 text-sm rounded-full media-type-btn ${mediaType === 'movie' ? 'media-type-btn-active' : ''}`}>{t.movies}</button><button onClick={() => setMediaType('tv')} className={`px-5 py-2 text-sm rounded-full media-type-btn ${mediaType === 'tv' ? 'media-type-btn-active' : ''}`}>{t.tvShows}</button></div></header>
             <SearchBar onSearch={handleSearch} searchResults={searchResults} onResultClick={handleResultClick} />
             <div className="text-center my-4 text-gray-400 font-semibold">— OR —</div>
