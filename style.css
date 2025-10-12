@@ -79,3 +79,12 @@
 .horizontal-scroll-container::-webkit-scrollbar {
   display: none; /* Hide scrollbar on Chrome/Safari */
 }
+/* --- ADD THIS TO THE END OF style.css --- */
+
+/* This gives the inactive genre filter buttons a proper background color */
+.quick-filter-btn {
+  /* This ensures the buttons don't wrap and can scroll */
+  flex-shrink: 0;
+  /* NEW: Add the background color here */
+  background-color: var(--color-card-bg);
+}
