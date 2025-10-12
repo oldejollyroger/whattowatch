@@ -185,10 +185,17 @@ const App = () => {
             <header className="mb-8 pt-12">
                 <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">{t.title}</h1>
                 <p className="text-lg text-gray-400 mt-2">{t.subtitle}</p>
-                <div className="mt-6 inline-flex p-1 rounded-full media-type-switcher">
-                    <button onClick={() => setMediaType('movie')} className={`px-5 py-2 text-sm rounded-full media-type-btn ${mediaType === 'movie' ? 'media-type-btn-active' : ''}`}>{t.movies}</button>
-                    <button onClick={() => setMediaType('tv')} className={`px-5 py-2 text-sm rounded-full media-type-btn ${mediaType === 'tv' ? 'media-type-btn-active' : ''}`}>{t.tvShows}</button>
-                </div>
+             <div className="flex flex-wrap justify-center gap-2 mb-8">
+    {quickGenres.map(genre => (
+        <button
+            key={genre.id}
+            onClick={() => setGenreFilter(prev => prev === genre.id ? '' : genre.id)}
+            className={`quick-filter-btn px-4 py-1.5 text-sm rounded-full ${genreFilter === genre.id ? 'quick-filter-btn-active' : ''}`}
+        >
+            {genre.name}
+        </button>
+    ))}
+</div>
             </header>
 
             <div className="flex flex-wrap justify-center gap-2 mb-8">
@@ -231,9 +238,9 @@ const App = () => {
                                 <div className="mt-4">
                                     <h3 className="font-semibold text-white">{t.availableOn}</h3>
                                     {selectedMedia.providers.length > 0 ? (
-                                        <div className="flex flex-wrap gap-2 mt-2">
-                                            {selectedMedia.providers.map(p => <img key={p.provider_id} src={`${TMDB_IMAGE_BASE_URL}${p.logo_path}`} alt={p.provider_name} title={p.provider_name} className="platform-logo" />)}
-                                        </div>
+                                       <div className="flex flex-wrap gap-2 mt-2">
+    {selectedMedia.providers.map(p => <img key={p.provider_id} src={`${TMDB_IMAGE_BASE_URL}${p.logo_path}`} alt={p.provider_name} title={p.provider_name} className="platform-logo" />)}
+</div>
                                     ) : <p className="text-gray-400">{t.notAvailable}</p>}
                                 </div>
                             </div>
