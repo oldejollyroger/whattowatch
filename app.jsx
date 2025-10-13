@@ -14,7 +14,45 @@ const TrailerModal = ({ trailerKey, onClose }) => { /* ... Paste full component 
 const ActorDetailsModal = ({ actor, onClose }) => { /* ... Paste full component code here ... */ };
 const SettingsMenu = ({ onCountryChange, onSelectTheme, currentTheme, displayMode, onDisplayModeChange, onOpenWatched, onOpenWatchlist, t }) => { /* ... Paste full component code here ... */ };
 const SearchBar = ({ onSearch, onResultClick, searchResults }) => { /* ... Paste full component code here ... */ };
-const CountrySelector = ({ countries, onSelect, t }) => { const [searchTerm, setSearchTerm] = React.useState(''); const filteredCountries = countries.filter(c => c.english_name.toLowerCase().includes(searchTerm.toLowerCase())); return ( <div className="modal-overlay"><div className="country-selector-modal"><div className="p-4 border-b border-[var(--color-card-border)]"><h2 className="text-xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-gradient-from)] to-[var(--color-accent-gradient-to)]">{t.selectCountry}</h2><input type="text" placeholder={t.searchCountry} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-3 mt-4 rounded-lg bg-gray-700/50 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" /></div><div className="country-list">{ (searchTerm.length > 0 || countries.length < 15) && filteredCountries.map(c => (<button key={c.iso_3166_1} onClick={() => onSelect(c.iso_3166_1)} className="country-list-item">{c.english_name}</button>))}</div></div></div>);};
+// Corrected CountrySelector component
+const CountrySelector = ({ countries = [], onSelect, t }) => {
+    const { useState } = React;
+    const [searchTerm, setSearchTerm] = useState('');
+    
+    // Safety Check: Only filter if countries is a valid array.
+    const filteredCountries = Array.isArray(countries) 
+        ? countries.filter(c => c.english_name.toLowerCase().includes(searchTerm.toLowerCase()))
+        : [];
+
+    return (
+        <div className="modal-overlay">
+            <div className="country-selector-modal">
+                <div className="p-4 border-b border-[var(--color-card-border)]">
+                    <h2 className="text-xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-gradient-from)] to-[var(--color-accent-gradient-to)]">{t.selectCountry}</h2>
+                    <input
+                        type="text"
+                        placeholder={t.searchCountry}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full p-3 mt-4 rounded-lg bg-gray-700/50 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                </div>
+                <div className="country-list">
+                    {/* Updated condition to handle initial display */}
+                    {(searchTerm.length > 0 || filteredCountries.length < 20) ? (
+                        filteredCountries.map(c => (
+                            <button key={c.iso_3166_1} onClick={() => onSelect(c.iso_3166_1)} className="country-list-item">
+                                {c.english_name}
+                            </button>
+                        ))
+                    ) : (
+                        <div className="p-4 text-center text-gray-400">Start typing to find your country.</div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
 const FilterModal = ({ isOpen, onClose, allGenres, allPlatforms, filters, onFilterChange, onClearFilters }) => { /* ... Paste full component code here ... */ };
 
 
@@ -83,18 +121,40 @@ const App = () => {
     
     // --- Render Logic (THE CRITICAL FIX IS HERE) ---
     
+    // --- Render Logic (Corrected) ---
+    
+    // If the app is doing ANY initial loading (even before the region is known), show the loader.
     if (appStatus === 'loading') {
         return <div className="min-h-screen flex items-center justify-center"><div className="loader"></div></div>;
     }
     
+    // If there was an error fetching initial data, show the error message.
     if (appStatus === 'error') {
         return ( <div className="min-h-screen flex items-center justify-center p-4"><div className="w-full max-w-md text-center bg-red-900/50 border border-red-700 p-6 rounded-lg"><h1 className="text-2xl font-bold text-white mb-2">Application Error</h1><p className="text-red-200">{error}</p></div></div>);
     }
     
-    // **CORRECTED LOGIC:** If the app is ready but the user region is not set, ALWAYS show the selector.
+    // If the initial data is ready BUT the user hasn't selected a region, show the CountrySelector.
+    // This is the critical condition that was broken before.
     if (appStatus === 'ready' && !userRegion) {
         return <CountrySelector countries={availableRegions} onSelect={setUserRegion} t={t} />;
     }
+    
+    // If none of the above are true, it means the app is ready and a region IS selected.
+    // So, render the full application.
+    return (
+        <div className="container mx-auto max-w-4xl p-4 sm:p-6 text-center">
+            {/* The entire main app JSX goes here, starting from the header and search bar */}
+            <header className="app-header">
+                {/* ... The rest of your app's main view ... */ }
+            </header>
+            
+            <main>
+                {/* ... */}
+            </main>
+
+            {/* And all your modals at the end */}
+        </div>
+    );
     
     // If we get here, it means the app is ready and a region is selected. Render the main application.
     return (
