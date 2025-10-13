@@ -1,7 +1,7 @@
 // config.js
 
 // !!! IMPORTANT: PASTE YOUR TMDB API KEY HERE !!!
-const TMDB_API_KEY = '22f17214f2c35b01940cdfed47d738c2E';
+const TMDB_API_KEY = '22f17214f2c35b01940cdfed47d738c2';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
