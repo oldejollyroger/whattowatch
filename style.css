@@ -86,3 +86,92 @@ body { background-color: var(--color-bg); font-family: 'Inter', system-ui, sans-
 .card-action-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.75rem 1rem; font-weight: 600; border-radius: 0.5rem; transition: all 0.2s; border: 1px solid transparent; }
 .trailer-btn { background-color: rgba(var(--color-accent-rgb), 0.15); color: var(--color-accent-text); border-color: rgba(var(--color-accent-rgb), 0.3); }
 .trailer-btn:hover { background-color: rgba(var(--color-accent-rgb), 0.25); }
+/* --- ADD THESE STYLES TO THE END OF style.css --- */
+
+/* --- Movie Card Action Buttons (Watched/Save) --- */
+.card-user-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.user-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem; /* 10px */
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.user-action-btn svg {
+  width: 1.25rem; /* 20px */
+  height: 1.25rem; /* 20px */
+}
+
+/* Specific styles for each button */
+.watch-btn {
+  background-color: rgba(34, 197, 94, 0.15); /* Greenish */
+  color: #a7f3d0;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+.watch-btn:hover { background-color: rgba(34, 197, 94, 0.25); }
+
+.watchlist-btn {
+  background-color: rgba(59, 130, 246, 0.15); /* Bluish */
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+.watchlist-btn:hover { background-color: rgba(59, 130, 246, 0.25); }
+
+/* Active states for buttons */
+.watch-btn.active {
+  background-color: #16a34a; /* Solid Green */
+  color: white;
+  border-color: #16a34a;
+}
+.watchlist-btn.active {
+  background-color: #2563eb; /* Solid Blue */
+  color: white;
+  border-color: #2563eb;
+}
+
+/* --- User List Modals (Watched/Watchlist) --- */
+.user-list-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-card-border);
+}
+.user-list-item img {
+  width: 3rem; /* 48px */
+  height: 4.5rem; /* 72px */
+  object-fit: cover;
+  border-radius: 0.375rem;
+  flex-shrink: 0;
+}
+.user-list-item-info { overflow: hidden; }
+.user-list-item-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-list-item-year { font-size: 0.875rem; color: var(--color-text-secondary); }
+.user-list-remove-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    transition: all 0.2s;
+}
+.user-list-remove-btn:hover {
+    background-color: #ef4444;
+    color: white;
+}
