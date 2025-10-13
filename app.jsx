@@ -1,99 +1,25 @@
-// app.jsx - Definitive Working Version with All Features
+// app.jsx - Definitive Final Version
 
 // --- Custom Hooks ---
 const useDebounce = (value, delay) => {
     const { useState, useEffect } = React;
     const [debouncedValue, setDebouncedValue] = useState(value);
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
-        return () => clearTimeout(handler);
-    }, [value, delay]);
+    useEffect(() => { const handler = setTimeout(() => { setDebouncedValue(value); }, delay); return () => clearTimeout(handler); }, [value, delay]);
     return debouncedValue;
 };
 
-// --- Reusable UI Components (Defined first, globally) ---
+// --- Reusable UI Components (Defined at top level for safety) ---
+const TrailerModal = ({ trailerKey, onClose }) => { if (!trailerKey) return null; return ( <div className="modal-overlay" onClick={onClose}> <div className="relative w-full max-w-4xl" onClick={e => e.stopPropagation()}> <button onClick={onClose} className="modal-close-btn text-white"> <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg> </button> <div className="trailer-responsive"> <iframe src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`} frameBorder="0" allow="autoplay; encrypted-media" allowFullScreen title="Movie Trailer"></iframe> </div> </div> </div>); };
+const ActorDetailsModal = ({ actor, onClose }) => { if (!actor) return null; const knownFor = [...(actor.movie_credits?.cast || []), ...(actor.tv_credits?.cast || [])].filter(item => item.poster_path).sort((a, b) => b.popularity - a.popularity).slice(0, 10); return ( <div className="modal-overlay" onClick={onClose}> <div className="modal-content relative w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}> <button onClick={onClose} className="modal-close-btn text-white"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button> <div className="overflow-y-auto"> <div className="p-6 md:flex md:space-x-8"> <div className="md:w-1/3 flex-shrink-0 text-center"><img src={actor.profile_path ? `${TMDB_IMAGE_BASE_URL}${actor.profile_path}` : 'https://via.placeholder.com/500x750.png?text=No+Image'} alt={actor.name} className="rounded-lg shadow-lg w-2/3 md:w-full mx-auto" /></div> <div className="mt-4 md:mt-0 md:w-2/3"><h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-gradient-from)] to-[var(--color-accent-gradient-to)]">{actor.name}</h2><p className="mt-4 text-base leading-relaxed max-h-60 overflow-y-auto">{actor.biography || "No biography available."}</p></div> </div> {knownFor.length > 0 && (<div className="p-6 border-t border-[var(--color-card-border)]"><h3 className="text-xl font-semibold mb-4 text-[var(--color-accent-text)]">Known For</h3><div className="horizontal-scroll-container">{knownFor.map(item => (<div key={item.credit_id || item.id} className="flex-shrink-0 w-32 text-center"><img src={`${TMDB_IMAGE_BASE_URL}${item.poster_path}`} alt={item.title || item.name} className="rounded-lg" /><span className="block mt-2 text-xs text-gray-400">{item.title || item.name}</span></div>))}</div></div>)}</div> </div> </div>); };
+const SettingsMenu = ({ t, currentTheme, onSelectTheme, onCountryChange, displayMode, onDisplayModeChange }) => { const { useState, useEffect, useRef } = React; const [isOpen, setIsOpen] = useState(false); const dropdownRef = useRef(null); useEffect(() => { const handleClickOutside = (event) => { if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false); }; document.addEventListener("mousedown", handleClickOutside); return () => document.removeEventListener("mousedown", handleClickOutside); }, []); return ( <div ref={dropdownRef} className="settings-menu-container"> <button onClick={() => setIsOpen(!isOpen)} className="theme-toggle" title="Settings"> <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.096 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> </button> {isOpen && ( <div className="settings-dropdown"> <div className="space-y-4"> <div> <h4 className="text-sm font-semibold text-gray-400 mb-2">Accent Color</h4> <div className="flex items-center justify-around bg-gray-700/50 p-2 rounded-full border border-gray-600"> {ACCENT_COLORS.map(c => ( <button key={c.name} onClick={() => { onSelectTheme(c); setIsOpen(false); }} className={`w-6 h-6 rounded-full transition-transform duration-150 transform hover:scale-110`} style={{ backgroundColor: c.color }} title={c.name}> {currentTheme.name === c.name && <svg className="w-6 h-6 text-white p-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>} </button>))} </div> </div> <div> <h4 className="text-sm font-semibold text-gray-400 mb-2">Display Mode</h4> <div className="flex items-center p-1 rounded-full bg-gray-700/50 border border-gray-600"> <button onClick={() => onDisplayModeChange('light')} className={`w-1/2 py-1 text-sm rounded-full ${displayMode === 'light' ? 'bg-white text-black' : 'text-gray-300'}`}>Light</button> <button onClick={() => onDisplayModeChange('dark')} className={`w-1/2 py-1 text-sm rounded-full ${displayMode === 'dark' ? 'bg-[var(--color-accent)] text-white' : 'text-gray-300'}`}>Dark</button> </div> </div> <button onClick={() => { onCountryChange(); setIsOpen(false); }} className="w-full text-left px-3 py-2 text-sm bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition">{t.changeCountry}</button> </div> </div>)} </div>); };
+const SearchBar = ({ onSearch, onResultClick, searchResults }) => { const { useState, useEffect, useRef } = React; const [query, setQuery] = useState(''); const debouncedQuery = useDebounce(query, 300); const searchRef = useRef(null); const [isFocused, setIsFocused] = useState(false); useEffect(() => { onSearch(debouncedQuery); }, [debouncedQuery, onSearch]); useEffect(() => { const handleClickOutside = (event) => { if (searchRef.current && !searchRef.current.contains(event.target)) setIsFocused(false); }; document.addEventListener("mousedown", handleClickOutside); return () => document.removeEventListener("mousedown", handleClickOutside); }, []); const handleResultItemClick = (result) => { setQuery(''); setIsFocused(false); onResultClick(result); }; return ( <div ref={searchRef} className="search-container"> <div className="search-icon"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div> <input type="text" placeholder="Search for a movie or TV show..." value={query} onChange={(e) => setQuery(e.target.value)} onFocus={() => setIsFocused(true)} className="search-input" /> {isFocused && searchResults.length > 0 && ( <div className="search-results-dropdown">{searchResults.map(result => ( <div key={result.id} className="search-result-item" onClick={() => handleResultItemClick(result)}><img src={result.poster} alt={result.title} /><div className="search-result-info"><span className="search-result-title">{result.title}</span><span className="search-result-year">{result.year}</span></div></div>))}</div>)}</div>);};
+const AdvancedFilters = ({ genres, platforms, filters, onFilterChange }) => { const { useState, useRef } = React; const [isOpen, setIsOpen] = useState(false); const [platformSearch, setPlatformSearch] = useState(''); const contentRef = useRef(null); const handleGenreChange = (genreId, type) => { const currentList = filters[type]; const newList = currentList.includes(genreId) ? currentList.filter(id => id !== genreId) : [...currentList, genreId]; const otherType = type === 'includeGenres' ? 'excludeGenres' : 'includeGenres'; const otherList = filters[otherType].filter(id => id !== genreId); onFilterChange({ ...filters, [type]: newList, [otherType]: otherList }); }; const handlePlatformChange = (platformId) => { const newList = filters.platforms.includes(platformId) ? filters.platforms.filter(id => id !== platformId) : [...filters.platforms, platformId]; onFilterChange({ ...filters, platforms: newList }); }; const filteredPlatforms = platforms.filter(p => p.provider_name.toLowerCase().includes(platformSearch.toLowerCase())); return ( <div className="advanced-filters-container max-w-2xl mx-auto"> <button onClick={() => setIsOpen(!isOpen)} className="w-full text-lg font-bold flex justify-between items-center text-[var(--color-accent-text)]"> <span>Advanced Filters</span> <span className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}> <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg> </span> </button> <div ref={contentRef} style={{ maxHeight: isOpen ? `${contentRef.current.scrollHeight}px` : '0px' }} className="filters-content"> <div className="filter-grid"> <div className="filter-section"> <h4 className="font-semibold mb-2">Include Genres</h4> <div className="filter-list"> {genres.map(genre => ( <label key={genre.id} className={`filter-label ${filters.excludeGenres.includes(genre.id) ? 'disabled' : ''}`}> <input type="checkbox" className="filter-custom-input" checked={filters.includeGenres.includes(genre.id)} disabled={filters.excludeGenres.includes(genre.id)} onChange={() => handleGenreChange(genre.id, 'includeGenres')} /> {genre.name} </label>))} </div> </div> <div className="filter-section"> <h4 className="font-semibold mb-2">Exclude Genres</h4> <div className="filter-list"> {genres.map(genre => ( <label key={genre.id} className={`filter-label ${filters.includeGenres.includes(genre.id) ? 'disabled' : ''}`}> <input type="checkbox" className="filter-custom-input" checked={filters.excludeGenres.includes(genre.id)} disabled={filters.includeGenres.includes(genre.id)} onChange={() => handleGenreChange(genre.id, 'excludeGenres')} /> {genre.name} </label>))} </div> </div> <div className="filter-section"> <h4 className="font-semibold mb-2">Platforms</h4> <input type="text" placeholder="Search platforms..." value={platformSearch} onChange={(e) => setPlatformSearch(e.target.value)} className="platform-search-input" /> <div className="filter-list"> {filteredPlatforms.map(platform => ( <label key={platform.provider_id} className="filter-label"> <input type="checkbox" className="filter-custom-input" checked={filters.platforms.includes(platform.provider_id)} onChange={() => handlePlatformChange(platform.provider_id)} /> {platform.provider_name} </label>))} </div> </div> </div> </div> </div> ); };
+const GenreFilters = ({ mediaType, currentGenre, onGenreSelect }) => { const quickGenres = (mediaType === 'movie') ? [ { id: '28', name: 'Action' }, { id: '35', name: 'Comedy' }, { id: '878', name: 'Sci-Fi' }, { id: '27', name: 'Horror' }, { id: '10749', name: 'Romance' } ] : [ { id: '10759', name: 'Action' }, { id: '35', name: 'Comedy' }, { id: '99', name: 'Documentary' }, { id: '18', name: 'Drama' }, { id: '10765', 'name': 'Sci-Fi' } ]; return ( <div className="w-full max-w-2xl mx-auto mb-8"> <h3 className="px-1 text-sm font-semibold text-gray-400 mb-2 text-left">Quick Filters</h3> <div className="horizontal-scroll-container"> {quickGenres.map(genre => ( <button key={genre.id} onClick={() => onGenreSelect(genre.id)} className={`quick-filter-btn px-4 py-1.5 text-sm ${currentGenre === genre.id ? 'quick-filter-btn-active' : ''}`}>{genre.name}</button>))} </div> </div>);};
+const CountrySelector = ({ countries, onSelect, t }) => { const [searchTerm, setSearchTerm] = React.useState(''); const filteredCountries = countries.filter(country => country.english_name.toLowerCase().includes(searchTerm.toLowerCase())); return ( <div className="modal-overlay"> <div className="country-selector-modal"> <div className="p-4 border-b border-[var(--color-card-border)]"> <h2 className="text-xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">{t.selectCountry}</h2> <input type="text" placeholder={t.searchCountry} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-3 mt-4 rounded-lg bg-gray-700/50 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" /> </div> <div className="country-list"> {filteredCountries.map(country => ( <button key={country.iso_3166_1} onClick={() => onSelect(country.iso_3166_1)} className="country-list-item">{country.english_name}</button>))} </div> </div> </div>);};
 
-const TrailerModal = ({ trailerKey, onClose }) => {
-    if (!trailerKey) return null;
-    return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="relative w-full max-w-4xl" onClick={e => e.stopPropagation()}>
-                <button onClick={onClose} className="modal-close-btn text-white">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-                <div className="trailer-responsive">
-                    <iframe src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`} frameBorder="0" allow="autoplay; encrypted-media" allowFullScreen title="Movie Trailer"></iframe>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const ActorDetailsModal = ({ actor, onClose }) => {
-    if (!actor) return null;
-    const knownFor = [...(actor.movie_credits?.cast || []), ...(actor.tv_credits?.cast || [])]
-        .filter(item => item.poster_path)
-        .sort((a, b) => b.popularity - a.popularity)
-        .slice(0, 10);
-    return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content relative w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                <button onClick={onClose} className="modal-close-btn text-white"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
-                <div className="overflow-y-auto">
-                    <div className="p-6 md:flex md:space-x-8">
-                        <div className="md:w-1/3 flex-shrink-0 text-center"><img src={actor.profile_path ? `${TMDB_IMAGE_BASE_URL}${actor.profile_path}` : 'https://via.placeholder.com/500x750.png?text=No+Image'} alt={actor.name} className="rounded-lg shadow-lg w-2/3 md:w-full mx-auto" /></div>
-                        <div className="mt-4 md:mt-0 md:w-2/3"><h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-gradient-from)] to-[var(--color-accent-gradient-to)]">{actor.name}</h2><p className="mt-4 text-base leading-relaxed max-h-60 overflow-y-auto">{actor.biography || "No biography available."}</p></div>
-                    </div>
-                    {knownFor.length > 0 && (<div className="p-6 border-t border-[var(--color-card-border)]"><h3 className="text-xl font-semibold mb-4 text-[var(--color-accent-text)]">Known For</h3><div className="horizontal-scroll-container">{knownFor.map(item => (<div key={item.credit_id || item.id} className="flex-shrink-0 w-32 text-center"><img src={`${TMDB_IMAGE_BASE_URL}${item.poster_path}`} alt={item.title || item.name} className="rounded-lg" /><span className="block mt-2 text-xs text-gray-400">{item.title || item.name}</span></div>))}</div></div>)}
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const SettingsMenu = ({ t, currentTheme, onSelectTheme, onCountryChange, displayMode, onDisplayModeChange }) => {
-    const { useState, useEffect, useRef } = React;
-    const [isOpen, setIsOpen] = useState(false); const dropdownRef = useRef(null);
-    useEffect(() => { const handleClickOutside = (event) => { if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false); }; document.addEventListener("mousedown", handleClickOutside); return () => document.removeEventListener("mousedown", handleClickOutside); }, []);
-    return ( <div ref={dropdownRef} className="settings-menu-container"> <button onClick={() => setIsOpen(!isOpen)} className="theme-toggle" title="Settings"> <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.096 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> </button> {isOpen && ( <div className="settings-dropdown"> <div className="space-y-4"> <div> <h4 className="text-sm font-semibold text-gray-400 mb-2">Accent Color</h4> <div className="flex items-center justify-around bg-gray-700/50 p-2 rounded-full border border-gray-600"> {ACCENT_COLORS.map(c => ( <button key={c.name} onClick={() => { onSelectTheme(c); setIsOpen(false); }} className={`w-6 h-6 rounded-full transition-transform duration-150 transform hover:scale-110`} style={{ backgroundColor: c.color }} title={c.name}> {currentTheme.name === c.name && <svg className="w-6 h-6 text-white p-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>} </button>))} </div> </div> <div> <h4 className="text-sm font-semibold text-gray-400 mb-2">Display Mode</h4> <div className="flex items-center p-1 rounded-full bg-gray-700/50 border border-gray-600"> <button onClick={() => onDisplayModeChange('light')} className={`w-1/2 py-1 text-sm rounded-full ${displayMode === 'light' ? 'bg-white text-black' : 'text-gray-300'}`}>Light</button> <button onClick={() => onDisplayModeChange('dark')} className={`w-1/2 py-1 text-sm rounded-full ${displayMode === 'dark' ? 'bg-[var(--color-accent)] text-white' : 'text-gray-300'}`}>Dark</button> </div> </div> <button onClick={() => { onCountryChange(); setIsOpen(false); }} className="w-full text-left px-3 py-2 text-sm bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition">{t.changeCountry}</button> </div> </div>)} </div>);
-};
-
-const SearchBar = ({ onSearch, onResultClick, searchResults }) => {
-    const { useState, useEffect, useRef } = React;
-    const [query, setQuery] = useState('');
-    const debouncedQuery = useDebounce(query, 300); const searchRef = useRef(null); const [isFocused, setIsFocused] = useState(false);
-    useEffect(() => { onSearch(debouncedQuery); }, [debouncedQuery, onSearch]);
-    useEffect(() => { const handleClickOutside = (event) => { if (searchRef.current && !searchRef.current.contains(event.target)) setIsFocused(false); }; document.addEventListener("mousedown", handleClickOutside); return () => document.removeEventListener("mousedown", handleClickOutside); }, []);
-    const handleResultItemClick = (result) => { setQuery(''); setIsFocused(false); onResultClick(result); };
-    return ( <div ref={searchRef} className="search-container"> <div className="search-icon"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div> <input type="text" placeholder="Search for a movie or TV show..." value={query} onChange={(e) => setQuery(e.target.value)} onFocus={() => setIsFocused(true)} className="search-input" /> {isFocused && searchResults.length > 0 && ( <div className="search-results-dropdown">{searchResults.map(result => ( <div key={result.id} className="search-result-item" onClick={() => handleResultItemClick(result)}><img src={result.poster} alt={result.title} /><div className="search-result-info"><span className="search-result-title">{result.title}</span><span className="search-result-year">{result.year}</span></div></div>))}</div>)}</div>);
-};
-
-const AdvancedFilters = ({ genres, platforms, filters, onFilterChange }) => {
-    const { useState, useRef } = React;
-    const [isOpen, setIsOpen] = useState(false); const [platformSearch, setPlatformSearch] = useState(''); const contentRef = useRef(null);
-    const handleGenreChange = (genreId, type) => { const currentList = filters[type]; const newList = currentList.includes(genreId) ? currentList.filter(id => id !== genreId) : [...currentList, genreId]; const otherType = type === 'includeGenres' ? 'excludeGenres' : 'includeGenres'; const otherList = filters[otherType].filter(id => id !== genreId); onFilterChange({ ...filters, [type]: newList, [otherType]: otherList }); };
-    const handlePlatformChange = (platformId) => { const newList = filters.platforms.includes(platformId) ? filters.platforms.filter(id => id !== platformId) : [...filters.platforms, platformId]; onFilterChange({ ...filters, platforms: newList }); };
-    const filteredPlatforms = platforms.filter(p => p.provider_name.toLowerCase().includes(platformSearch.toLowerCase()));
-    return ( <div className="advanced-filters-container max-w-2xl mx-auto"> <button onClick={() => setIsOpen(!isOpen)} className="w-full text-lg font-bold flex justify-between items-center text-[var(--color-accent)]"> <span>Advanced Filters</span> <span className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}> <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg> </span> </button> <div ref={contentRef} style={{ maxHeight: isOpen ? `${contentRef.current.scrollHeight}px` : '0px' }} className="filters-content"> <div className="filter-grid"> <div className="filter-section"> <h4 className="font-semibold mb-2">Include Genres</h4> <div className="filter-list"> {genres.map(genre => ( <label key={genre.id} className={`filter-label ${filters.excludeGenres.includes(genre.id) ? 'disabled' : ''}`}> <input type="checkbox" className="filter-custom-input" checked={filters.includeGenres.includes(genre.id)} disabled={filters.excludeGenres.includes(genre.id)} onChange={() => handleGenreChange(genre.id, 'includeGenres')} /> {genre.name} </label>))} </div> </div> <div className="filter-section"> <h4 className="font-semibold mb-2">Exclude Genres</h4> <div className="filter-list"> {genres.map(genre => ( <label key={genre.id} className={`filter-label ${filters.includeGenres.includes(genre.id) ? 'disabled' : ''}`}> <input type="checkbox" className="filter-custom-input" checked={filters.excludeGenres.includes(genre.id)} disabled={filters.includeGenres.includes(genre.id)} onChange={() => handleGenreChange(genre.id, 'excludeGenres')} /> {genre.name} </label>))} </div> </div> <div className="filter-section"> <h4 className="font-semibold mb-2">Platforms</h4> <input type="text" placeholder="Search platforms..." value={platformSearch} onChange={(e) => setPlatformSearch(e.target.value)} className="platform-search-input" /> <div className="filter-list"> {filteredPlatforms.map(platform => ( <label key={platform.provider_id} className="filter-label"> <input type="checkbox" className="filter-custom-input" checked={filters.platforms.includes(platform.provider_id)} onChange={() => handlePlatformChange(platform.provider_id)} /> {platform.provider_name} </label>))} </div> </div> </div> </div> </div> );
-};
-
-const GenreFilters = ({ mediaType, currentGenre, onGenreSelect }) => {
-    const quickGenres = (mediaType === 'movie') ? [ { id: '28', name: 'Action' }, { id: '35', name: 'Comedy' }, { id: '878', name: 'Sci-Fi' }, { id: '27', name: 'Horror' }, { id: '10749', name: 'Romance' } ] : [ { id: '10759', name: 'Action' }, { id: '35', name: 'Comedy' }, { id: '99', name: 'Documentary' }, { id: '18', name: 'Drama' }, { id: '10765', name: 'Sci-Fi' } ];
-    return ( <div className="w-full max-w-2xl mx-auto mb-8"> <h3 className="px-1 text-sm font-semibold text-gray-400 mb-2 text-left">Quick Filters</h3> <div className="horizontal-scroll-container"> {quickGenres.map(genre => ( <button key={genre.id} onClick={() => onGenreSelect(genre.id)} className={`quick-filter-btn px-4 py-1.5 text-sm ${currentGenre === genre.id ? 'quick-filter-btn-active' : ''}`}>{genre.name}</button>))} </div> </div>);
-};
-
-const CountrySelector = ({ countries, onSelect, t }) => {
-    const [searchTerm, setSearchTerm] = React.useState('');
-    const filteredCountries = countries.filter(country => country.english_name.toLowerCase().includes(searchTerm.toLowerCase()));
-    return ( <div className="modal-overlay"> <div className="country-selector-modal"> <div className="p-4 border-b border-[var(--color-card-border)]"> <h2 className="text-xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">{t.selectCountry}</h2> <input type="text" placeholder={t.searchCountry} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-3 mt-4 rounded-lg bg-gray-700/50 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" /> </div> <div className="country-list"> {filteredCountries.map(country => ( <button key={country.iso_3166_1} onClick={() => onSelect(country.iso_3166_1)} className="country-list-item">{country.english_name}</button>))} </div> </div> </div>);
-};
-
-
+// --- Main App Component ---
 const App = () => {
     const { useState, useEffect, useCallback } = React;
-    
     const [userRegion, setUserRegion] = useState(() => localStorage.getItem('moviePicker_userRegion') || null);
     const [mediaType, setMediaType] = useState('movie');
     const [selectedMedia, setSelectedMedia] = useState(null);
@@ -108,90 +34,39 @@ const App = () => {
     const [allPlatforms, setAllPlatforms] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [modal, setModal] = useState({ type: null, data: null });
-
     const t = translations['en'];
 
     useEffect(() => {
-        document.documentElement.className = displayMode === 'dark' ? 'dark-mode' : 'light-mode';
-        localStorage.setItem('moviePicker_displayMode', displayMode);
+        document.documentElement.className = displayMode === 'dark' ? 'dark-mode' : 'light-mode'; localStorage.setItem('moviePicker_displayMode', displayMode);
         const r = document.documentElement; r.style.setProperty('--color-accent', accent.color); r.style.setProperty('--color-accent-text', accent.text); r.style.setProperty('--color-accent-gradient-from', accent.from); r.style.setProperty('--color-accent-gradient-to', accent.to);
-        const hexToRgb = (hex) => { const re = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return re ? {r:parseInt(re[1],16), g:parseInt(re[2],16), b:parseInt(re[3],16)} : null; };
-        const rgb = hexToRgb(accent.color); if (rgb) r.style.setProperty('--color-accent-rgb', `${rgb.r},${rgb.g},${rgb.b}`);
+        const hexToRgb = (h) => { const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h); return r ? {r:parseInt(r[1],16), g:parseInt(r[2],16), b:parseInt(r[3],16)}:null;};
+        const rgb = hexToRgb(accent.color); if(rgb) r.style.setProperty('--color-accent-rgb', `${rgb.r},${rgb.g},${rgb.b}`);
         localStorage.setItem('moviePicker_accent', JSON.stringify(accent));
     }, [displayMode, accent]);
     
     useEffect(() => { if (userRegion) localStorage.setItem('moviePicker_userRegion', userRegion); else localStorage.removeItem('moviePicker_userRegion'); localStorage.setItem('moviePicker_filters_v2', JSON.stringify(filters)); }, [userRegion, filters]);
 
-    const fetchApi = useCallback(async (path, params = {}) => {
-        if (!TMDB_API_KEY || TMDB_API_KEY === 'YOUR_API_KEY_HERE') throw new Error("API Key is missing!");
-        const query = new URLSearchParams({ api_key: TMDB_API_KEY, ...params });
-        const response = await fetch(`${TMDB_BASE_URL}/${path}?${query}`);
-        if (!response.ok) { const data = await response.json(); throw new Error(data.status_message); }
-        return response.json();
-    }, []);
-
-    const processMediaDetails = useCallback((details, mediaType, region) => {
-        const trailer = details.videos?.results?.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
-        return {
-            title: details.title || details.name, id: details.id, year: (details.release_date || details.first_air_date || 'N/A').substring(0, 4), poster: details.poster_path ? `${TMDB_IMAGE_BASE_URL}${details.poster_path}` : 'https://via.placeholder.com/500x750.png?text=No+Image', rating: details.vote_average?.toFixed(1) || 'N/A', overview: details.overview,
-            providers: details['watch/providers']?.results?.[region]?.flatrate || [], cast: details.credits?.cast?.slice(0, 10) || [],
-            similar: details.similar?.results?.filter(s => s.poster_path).slice(0, 10).map(s => ({...s, mediaType}) ) || [],
-            trailerKey: trailer ? trailer.key : null, mediaType: mediaType,
-        };
-    }, []);
-
-    useEffect(() => {
-        setAppStatus('loading');
-        fetchApi('configuration/countries').then(data => {
-            setAvailableRegions(data.filter(c => TOP_COUNTRIES.includes(c.iso_3166_1)).sort((a,b) => a.english_name.localeCompare(b.english_name)));
-            setAppStatus('ready');
-        }).catch(err => { setError(err.message); setAppStatus('error'); });
-    }, [fetchApi]);
-
-    useEffect(() => {
-        if (!userRegion) { setAllGenres([]); setAllPlatforms([]); return; }
-        const fetchRegionData = async () => { try { const [genresData, platformsData] = await Promise.all([fetchApi(`genre/${mediaType}/list`), fetchApi(`watch/providers/${mediaType}`, { watch_region: userRegion })]); setAllGenres(genresData.genres || []); setAllPlatforms(platformsData.results || []); } catch (err) { setError("Could not load data for the selected region."); }};
-        fetchRegionData();
-    }, [userRegion, mediaType, fetchApi]);
-
-    const handleChangeCountry = () => setUserRegion(null);
+    const fetchApi = useCallback(async (path, params = {}) => { if (!TMDB_API_KEY || TMDB_API_KEY === 'YOUR_API_KEY_HERE') throw new Error("API Key is missing!"); const query = new URLSearchParams({ api_key: TMDB_API_KEY, ...params }); const response = await fetch(`${TMDB_BASE_URL}/${path}?${query}`); if (!response.ok) { const data = await response.json(); throw new Error(data.status_message); } return response.json(); }, []);
+    const processMediaDetails = useCallback((details, mediaType, region) => { const trailer = details.videos?.results?.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser')); return { title: details.title || details.name, id: details.id, year: (details.release_date || details.first_air_date || 'N/A').substring(0, 4), poster: details.poster_path ? `${TMDB_IMAGE_BASE_URL}${details.poster_path}` : 'https://via.placeholder.com/500x750.png?text=No+Image', rating: details.vote_average?.toFixed(1) || 'N/A', overview: details.overview, providers: details['watch/providers']?.results?.[region]?.flatrate || [], cast: details.credits?.cast?.slice(0, 10) || [], similar: details.similar?.results?.filter(s => s.poster_path).slice(0, 10).map(s => ({...s, mediaType})) || [], trailerKey: trailer ? trailer.key : null, mediaType: mediaType, }; }, []);
     
+    useEffect(() => { setAppStatus('loading'); fetchApi('configuration/countries').then(data => { setAvailableRegions(data.filter(c => TOP_COUNTRIES.includes(c.iso_3166_1)).sort((a,b) => a.english_name.localeCompare(b.english_name))); setAppStatus('ready'); }).catch(err => { setError(err.message); setAppStatus('error'); }); }, [fetchApi]);
+    useEffect(() => { if (!userRegion) { setAllGenres([]); setAllPlatforms([]); return; } const fetchRegionData = async () => { try { const [genresData, platformsData] = await Promise.all([fetchApi(`genre/${mediaType}/list`), fetchApi(`watch/providers/${mediaType}`, { watch_region: userRegion })]); setAllGenres(genresData.genres || []); setAllPlatforms(platformsData.results || []); } catch (err) { setError("Could not load region-specific data."); }}; fetchRegionData(); }, [userRegion, mediaType, fetchApi]);
+    
+    const handleChangeCountry = () => setUserRegion(null);
     const handleSurpriseMe = useCallback(async () => {
         setIsDiscovering(true); setError(null); setSelectedMedia(null);
-        try {
-            const genresToInclude = [filters.quickGenre, ...filters.includeGenres].filter(Boolean).join(',');
-            const discoverParams = {'vote_count.gte': 100, 'sort_by': 'popularity.desc', 'watch_region': userRegion, 'with_watch_monetization_types': 'flatrate'};
-            if (genresToInclude) discoverParams['with_genres'] = genresToInclude;
-            if (filters.excludeGenres.length > 0) discoverParams['without_genres'] = filters.excludeGenres.join(',');
-            if (filters.platforms.length > 0) discoverParams['with_watch_providers'] = filters.platforms.join('|');
-            const initialData = await fetchApi(`discover/${mediaType}`, discoverParams);
-            const totalPages = Math.min(initialData.total_pages, 500);
-            if (totalPages === 0) throw new Error(t.noResults);
-            const randomPage = Math.floor(Math.random() * totalPages) + 1;
-            const pageData = await fetchApi(`discover/${mediaType}`, {...discoverParams, page: randomPage });
-            const results = pageData.results.filter(r => r.poster_path);
-            if (!results || results.length === 0) throw new Error(t.noResults);
-            const randomResult = results[Math.floor(Math.random() * results.length)];
-            const details = await fetchApi(`${mediaType}/${randomResult.id}`, { append_to_response: 'videos,credits,similar,watch/providers' });
-            setSelectedMedia(processMediaDetails(details, mediaType, userRegion));
+        try { const genresToInclude = [filters.quickGenre, ...filters.includeGenres].filter(Boolean).join(','); const discoverParams = {'sort_by': 'popularity.desc', 'watch_region': userRegion, 'with_watch_monetization_types': 'flatrate'};
+            if (genresToInclude) discoverParams['with_genres'] = genresToInclude; if (filters.excludeGenres.length > 0) discoverParams['without_genres'] = filters.excludeGenres.join(','); if (filters.platforms.length > 0) discoverParams['with_watch_providers'] = filters.platforms.join('|');
+            const initialData = await fetchApi(`discover/${mediaType}`, discoverParams); const totalPages = Math.min(initialData.total_pages, 500); if (totalPages === 0) throw new Error(t.noResults);
+            const randomPage = Math.floor(Math.random() * totalPages) + 1; const pageData = await fetchApi(`discover/${mediaType}`, {...discoverParams, page: randomPage }); const results = pageData.results.filter(r => r.poster_path); if (results.length === 0) throw new Error(t.noResults);
+            const randomResult = results[Math.floor(Math.random() * results.length)]; const details = await fetchApi(`${mediaType}/${randomResult.id}`, { append_to_response: 'videos,credits,similar,watch/providers' }); setSelectedMedia(processMediaDetails(details, mediaType, userRegion));
         } catch (err) { setError(err.message); } finally { setIsDiscovering(false); }
     }, [mediaType, userRegion, fetchApi, t, filters, processMediaDetails]);
+    const handleSearch = useCallback(async (query) => { if (query.trim() === '') { setSearchResults([]); return; } try { const data = await fetchApi('search/multi', { query }); const filtered = data.results.filter(r => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path).slice(0, 5).map(r => ({ id: r.id, title: r.title || r.name, year: (r.release_date || r.first_air_date || '').substring(0, 4), poster: `${TMDB_IMAGE_BASE_URL}${r.poster_path}`, mediaType: r.media_type, })); setSearchResults(filtered); } catch (err) { console.error("Search failed:", err); } }, [fetchApi]);
+    const handleResultClick = useCallback(async (result) => { setError(null); setSelectedMedia(null); setIsDiscovering(true); try { const details = await fetchApi(`${result.mediaType}/${result.id}`, { append_to_response: 'videos,credits,similar,watch/providers' }); setSelectedMedia(processMediaDetails(details, result.mediaType, userRegion)); } catch (err) { setError("Could not fetch details."); } finally { setIsDiscovering(false); } }, [fetchApi, userRegion, processMediaDetails]);
+    const handleActorClick = useCallback(async (actorId) => { try { setModal({ type: 'actor', data: null }); const actorDetails = await fetchApi(`person/${actorId}`, { append_to_response: 'movie_credits,tv_credits' }); setModal({ type: 'actor', data: actorDetails }); } catch (err) { setModal({ type: null, data: null }); } }, [fetchApi]);
     
-    const handleSearch = useCallback(async (query) => {
-        if (query.trim() === '') { setSearchResults([]); return; }
-        try { const data = await fetchApi('search/multi', { query }); const filtered = data.results.filter(r => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path).slice(0, 5).map(r => ({ id: r.id, title: r.title || r.name, year: (r.release_date || r.first_air_date || '').substring(0, 4), poster: `${TMDB_IMAGE_BASE_URL}${r.poster_path}`, mediaType: r.media_type, })); setSearchResults(filtered); } catch (err) { console.error("Search failed:", err); }
-    }, [fetchApi]);
-
-    const handleResultClick = useCallback(async (result) => {
-        setError(null); setSelectedMedia(null); setIsDiscovering(true);
-        try { const details = await fetchApi(`${result.mediaType}/${result.id}`, { append_to_response: 'videos,credits,similar,watch/providers' }); setSelectedMedia(processMediaDetails(details, result.mediaType, userRegion)); } catch (err) { setError("Could not fetch details."); } finally { setIsDiscovering(false); }
-    }, [fetchApi, userRegion, processMediaDetails]);
-
-    const handleActorClick = useCallback(async (actorId) => {
-        try { setModal({ type: 'actor', data: null }); const actorDetails = await fetchApi(`person/${actorId}`, { append_to_response: 'movie_credits,tv_credits' }); setModal({ type: 'actor', data: actorDetails }); } catch (err) { setModal({ type: null, data: null }); }
-    }, [fetchApi]);
-    
-    if (appStatus === 'loading' || (appStatus === 'ready' && availableRegions.length === 0 && !userRegion)) { return <div className="min-h-screen flex items-center justify-center"><div className="loader"></div></div>; }
+    if (appStatus === 'loading') { return <div className="min-h-screen flex items-center justify-center"><div className="loader"></div></div>; }
     if (appStatus === 'error') { return ( <div className="min-h-screen flex items-center justify-center p-4"> <div className="w-full max-w-md text-center bg-red-900/50 border border-red-700 p-6 rounded-lg"> <h1 className="text-2xl font-bold text-white mb-2">Application Error</h1> <p className="text-red-200">{error}</p></div> </div>); }
     if (appStatus === 'ready' && !userRegion) { return <CountrySelector countries={availableRegions} onSelect={(region) => setUserRegion(region)} t={t} />; }
     
